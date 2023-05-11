@@ -1,0 +1,7 @@
+.gitkeep
+__debug_bin
+main
+*.log
+*.code-workspace
+.vscode
+.env.*
