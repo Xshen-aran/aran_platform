@@ -1,9 +1,10 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/Xshen-aran/aran_platform/apps/router"
+	_ "github.com/Xshen-aran/aran_platform/config"
+)
 
 func main() {
-	router := gin.Default()
-	router.GET("/ping", func(c *gin.Context) {})
-	router.Run(":8080")
+	router.GinRouter.Run(":8080")
 }
