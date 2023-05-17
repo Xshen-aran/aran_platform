@@ -8,7 +8,7 @@ func userRouter(e *gin.Engine) {
 	r := e.Group("/users")
 	{
 
-		r.POST("/test", func(ctx *gin.Context) {
+		r.POST("/register", func(ctx *gin.Context) {
 			var data map[string]interface{}
 			ctx.BindJSON(&data)
 			ctx.JSON(200, gin.H{
@@ -16,7 +16,13 @@ func userRouter(e *gin.Engine) {
 				"data":    data,
 			})
 		})
-		r.GET("/test", func(ctx *gin.Context) {
+		r.GET("/login", func(ctx *gin.Context) {
+			ctx.JSON(200, gin.H{
+				"message": "test",
+			})
+		})
+		r.GET("/adminlogin", func(ctx *gin.Context) {
+			ctx.SetCookie("token", "test", 3600, "/", "localhost", false, true)
 			ctx.JSON(200, gin.H{
 				"message": "test",
 			})

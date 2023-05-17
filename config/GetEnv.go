@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -14,6 +13,7 @@ var (
 const (
 	dev  string = ".env.development"
 	prod string = ".env.production"
+	env  string = ".env"
 )
 
 func init() {
@@ -23,13 +23,13 @@ func init() {
 			switch os.Args[i+1] {
 			case "dev":
 				Env, err = godotenv.Read(dev)
-				Env["GIN_MODE"] = "debug"
+
 			case "prod":
 				Env, err = godotenv.Read(prod)
 				Env["GIN_MODE"] = "info"
 			default:
-				Env, err = godotenv.Read(dev)
-				Env["GIN_MODE"] = "debug"
+				Env, err = godotenv.Read(env)
+
 			}
 
 		}
@@ -37,5 +37,4 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Env: %v\n", Env)
 }

@@ -29,8 +29,9 @@ func init() {
 func include(opts ...Function) {
 	options = append(options, opts...)
 }
-func ReloadRouter() {
+func ReloadRouter() *gin.Engine {
 	for _, v := range options {
 		v(GinRouter)
 	}
+	return GinRouter
 }

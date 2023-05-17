@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -22,19 +22,7 @@ import (
 
 var lg *zap.Logger
 
-// func getLogwriter(filename string, maxSize, maxBackup, maxAge int) zapcore.WriteSyncer {
-// 	// filename = strings.Replace(filename, "$$", time.Now().Format("2006_01_02"), 1)
-// 	lumberJackLogger := &lumberjack.Logger{
-// 		Filename:   filename,
-// 		MaxSize:    maxSize,
-// 		MaxBackups: maxBackup,
-// 		MaxAge:     maxAge,
-// 	}
-// 	return zapcore.AddSync(lumberJackLogger)
-// }
-
 func getLogwriterData(filename, maxSize, maxBackup, maxAge string) zapcore.WriteSyncer {
-	// filename = strings.Replace(filename, "$$", time.Now().Format("2006_01_02"), 1)
 	lumberJackLogger, _ := rotatelogs.New(
 		filename+".%Y%m%d.log",
 		rotatelogs.WithMaxAge(30*24*time.Hour),
@@ -131,8 +119,9 @@ func GinLogger() gin.HandlerFunc {
 			bodyBytes []byte
 			username  string
 		)
-		bodyBytes, _ = ioutil.ReadAll(c.Request.Body)
-		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+
+		bodyBytes, _ = io.ReadAll(c.Request.Body)
+		c.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 		start := time.Now()
 		path := c.Request.URL.Path
 		query := c.Request.URL.RawQuery

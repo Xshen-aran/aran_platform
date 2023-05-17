@@ -5,13 +5,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Xshen-aran/aran_platform/config"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 )
 
 const tokenExpireDuration = 7 * 24 * time.Hour
 
-var customSecret = []byte("aran_platform")
+// var customSecret = []byte("aran_platform")
+var customSecret = []byte(config.Env["JWT_SECRET"])
 
 type CustomClaims struct {
 	Username string `json:"user_name"`

@@ -3,6 +3,10 @@ package interfaces
 type Dict[K comparable, V any] map[K]V
 type Set[T comparable] map[T]struct{}
 
+func NewDict[K comparable, V any]() Dict[K, V] {
+	return Dict[K, V]{}
+}
+
 func NewSet[T comparable](e ...T) Set[T] {
 	s := Set[T]{}
 	for _, v := range e {
@@ -46,4 +50,38 @@ func (s *Set[T]) ToSlice() []T {
 		ret = append(ret, k)
 	}
 	return ret
+}
+
+func (d *Dict[K, V]) Get(k K) (V, bool) {
+	v, ok := (*d)[k]
+	return v, ok
+}
+
+func (d *Dict[K, V]) Add(k K, v V) *Dict[K, V] {
+	(*d)[k] = v
+	return d
+}
+
+func (d *Dict[K, V]) Remove(e ...K) *Dict[K, V] {
+	for _, v := range e {
+		delete(*d, v)
+	}
+	return d
+}
+
+func (d *Dict[K, V]) Has(e K) bool {
+	_, ok := (*d)[e]
+	return ok
+}
+
+func (d *Dict[K, V]) Len() int {
+	return len(*d)
+}
+
+func (d *Dict[K, V]) Clear() {
+	*d = Dict[K, V]{}
+}
+
+func (d *Dict[K, V]) IsEmpty() bool {
+	return d.Len() == 0
 }
