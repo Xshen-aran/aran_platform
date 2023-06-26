@@ -5,3 +5,5 @@ main
 *.code-workspace
 .vscode
 .env.*
+.venv
+.DS_Store

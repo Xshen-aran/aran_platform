@@ -1,0 +1,16 @@
+version: '3,7'
+services:
+  app:
+    build: .
+    privileged: true
+    restart: unless-stopped
+    user: root
+    working_dir: /app
+    container_name: aran
+    ports:
+      - "8080:8080"
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - /etc/timezone:/etc/timezone
+      - /mnt/dockerdata/test_platform:/app/log
+    command: bash -c "platform -d prod -m prod -p 8080"
