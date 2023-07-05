@@ -4,6 +4,8 @@ main
 *.log
 *.code-workspace
 .vscode
-.env.*
+.env.development
+.env.production
 .venv
 .DS_Store
+*/dist

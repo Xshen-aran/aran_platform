@@ -1,34 +1,44 @@
 package router
 
 import (
+	"github.com/Xshen-aran/aran_platform/apps/controller"
+	"github.com/Xshen-aran/aran_platform/apps/databases"
+	"github.com/Xshen-aran/aran_platform/apps/modules"
 	"github.com/gin-gonic/gin"
 )
 
 func userRouter(e *gin.Engine) {
-	r := e.Group("/users")
+	v := e.Group("/v1")
 	{
 
-		r.POST("/register", func(ctx *gin.Context) {
-			var data map[string]interface{}
-			ctx.BindJSON(&data)
-			ctx.JSON(200, gin.H{
-				"message": "test",
-				"data":    data,
-			})
-		})
-		r.GET("/login", func(ctx *gin.Context) {
-			ctx.JSON(200, gin.H{
-				"message": "test",
-			})
-		})
-		r.GET("/adminlogin", func(ctx *gin.Context) {
-			ctx.SetCookie("token", "test", 3600, "/", "localhost", false, true)
-			ctx.JSON(200, gin.H{
-				"message": "test",
-			})
-		})
+		r := v.Group("/users")
+		{
+
+			r.POST("/all", controller.GetUsers)
+
+		}
 	}
 }
 func init() {
 	include(userRouter)
+	var count int64
+	databases.Db.Debug().Model(&modules.RolePermissions{}).Count(&count)
+	if count == 0 {
+		// 初始化权限
+		databases.Db.Debug().Create(&modules.RolePermissions{Role: "Tester", Permissions: modules.Tester})
+		databases.Db.Debug().Create(&modules.RolePermissions{Role: "Developer", Permissions: modules.Developer})
+		databases.Db.Debug().Create(&modules.RolePermissions{Role: "Manager", Permissions: modules.Manager})
+		databases.Db.Debug().Create(&modules.RolePermissions{Role: "Admin", Permissions: modules.Admin})
+	}
+	// 创建管理员账户
+	var admin modules.Users
+	databases.Db.Debug().Where("username = ?", "admin").First(&admin)
+	if admin.Id == 0 {
+		admin = modules.Users{
+			Username:          "admin",
+			Password:          "Password@1",
+			RolePermissionsId: modules.Admin,
+		}
+		admin.Creater()
+	}
 }

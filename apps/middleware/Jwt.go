@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 
@@ -24,7 +25,10 @@ type CustomClaims struct {
 
 func JWTMiddlewares() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		if r := c.Request.URL.Path; r == "/users/register/" || r == "/users/login/" || r == "/users/adminlogin/" {
+		r := c.Request.URL.Path
+		pattern := "/v1/users"
+		matched, _ := regexp.MatchString(pattern, r)
+		if matched {
 			c.Next()
 		} else {
 			jwtHandler(c)
