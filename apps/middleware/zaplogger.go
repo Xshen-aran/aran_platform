@@ -44,7 +44,7 @@ func getEncoder() zapcore.Encoder {
 func InitLogger() (err error) {
 	// logerWriter := getLogwriter(c.Filename, c.MaxSize, c.MaxBackups, c.MaxAge)
 	// logerWriter := getLogwriterData(c.Filename, c.MaxSize, c.MaxBackups, c.MaxAge)
-	logerWriter := getLogwriterData(config.Env["LOG_FILE_NAME"], config.Env["LOG_FILE_MAX_SIZE"], config.Env["LOG_FILE_MAX_BACKUPS"], config.Env["LOG_FILE_MAX_AGE"])
+	logerWriter := getLogwriterData(config.Env["LOG_FILE_PATH"]+config.Env["LOG_FILE_NAME"], config.Env["LOG_FILE_MAX_SIZE"], config.Env["LOG_FILE_MAX_BACKUPS"], config.Env["LOG_FILE_MAX_AGE"])
 	encoder := getEncoder()
 	var l = new(zapcore.Level)
 	var core zapcore.Core
