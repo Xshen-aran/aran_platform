@@ -13,22 +13,23 @@ import (
 
 const tokenExpireDuration = 7 * 24 * time.Hour
 
-// var customSecret = []byte("aran_platform")
 var customSecret = []byte(config.Env["JWT_SECRET"])
 
 type CustomClaims struct {
 	Username string `json:"user_name"`
 	IsActive bool   `json:"is_active"`
-	IsAdmin  bool   `json:"is_admin"`
+	Auth     int    `json:"is_admin"`
 	jwt.RegisteredClaims
 }
 
 func JWTMiddlewares() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		r := c.Request.URL.Path
-		pattern := "/v1/users"
+		pattern := "/api/v1/users"
+		pattern_health := "health_check"
 		matched, _ := regexp.MatchString(pattern, r)
-		if matched {
+		matched_health, _ := regexp.MatchString(pattern_health, r)
+		if matched || matched_health {
 			c.Next()
 		} else {
 			jwtHandler(c)
@@ -41,7 +42,7 @@ func jwtHandler(c *gin.Context) {
 	if authHeader == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"code":    http.StatusUnauthorized,
-			"message": "请求头中没有Authorization字段",
+			"message": "缺少鉴权字段",
 		})
 		c.Abort()
 		return
@@ -68,15 +69,16 @@ func jwtHandler(c *gin.Context) {
 		return
 	}
 	c.Set("username", mc.Username)
+	c.Set("auth", mc.Auth)
 	c.Set("claims", mc)
 	c.Next()
 }
 
-func GenToken(username string, isActive, isAdmin bool) (string, error) {
+func GenToken(username string, isActive bool, Auth int) (string, error) {
 	claims := CustomClaims{
 		Username: username,
 		IsActive: isActive,
-		IsAdmin:  isAdmin,
+		Auth:     Auth,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(tokenExpireDuration)),
 			Issuer:    "aran",

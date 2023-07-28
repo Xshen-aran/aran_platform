@@ -1,4 +1,4 @@
-version: '3,7'
+version: "3.7"
 services:
   app:
     build: .
@@ -9,8 +9,44 @@ services:
     container_name: aran
     ports:
       - "8080:8080"
+    depends_on:
+      - mysql
+      - redis
     volumes:
       - /etc/localtime:/etc/localtime
       - /etc/timezone:/etc/timezone
       - /mnt/dockerdata/test_platform:/app/log
     command: bash -c "platform -d prod -m prod -p 8080"
+    networks:
+      - platform_net
+  mysql:
+    image: mysql:8.0.30
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_USER: bxh_test03
+      MYSQL_PASSWORD: Passowrd01!
+    ports:
+      - 3306:3306
+      - 33060:33060
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - /etc/timezone:/etc/timezone
+      - /mnt/dockerdata/test_platform/mysql:/var/lib/mysql
+    networks:
+      - platform_net
+  redis:
+    image: redis:latest
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - /etc/timezone:/etc/timezone
+      - /mnt/dockerdata/test_platform/redis:/data
+    networks:
+      - platform_net
+
+networks:
+  platform_net:
+    driver: bridge

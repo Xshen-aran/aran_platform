@@ -9,3 +9,4 @@ main
 .venv
 .DS_Store
 */dist
+logs

@@ -8,5 +8,4 @@ import (
 
 func main() {
 	router.ReloadRouter().Run(":8080")
-
 }

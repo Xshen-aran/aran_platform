@@ -7,20 +7,33 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func health_check(e *gin.Engine) {
+	v := e.Group("/api/v1")
+	{
+		v.GET("/health_check", func(c *gin.Context) {
+			c.JSON(200, gin.H{
+				"message": "ok",
+			})
+		})
+	}
+}
+
 func userRouter(e *gin.Engine) {
-	v := e.Group("/v1")
+	v := e.Group("/api/v1")
 	{
 
 		r := v.Group("/users")
 		{
-
+			r.POST("/", controller.Login)
+			r.POST("/register", controller.Register)
 			r.POST("/all", controller.GetUsers)
 
 		}
 	}
 }
+
 func init() {
-	include(userRouter)
+	include(userRouter, health_check)
 	var count int64
 	databases.Db.Debug().Model(&modules.RolePermissions{}).Count(&count)
 	if count == 0 {

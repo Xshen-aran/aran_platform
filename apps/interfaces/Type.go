@@ -1,9 +1,9 @@
 package interfaces
 
-type Dict[K comparable, V any] map[K]V
+type Dict[K string, V any] map[K]V
 type Set[T comparable] map[T]struct{}
 
-func NewDict[K comparable, V any]() Dict[K, V] {
+func NewDict[K string, V any]() Dict[K, V] {
 	return Dict[K, V]{}
 }
 

@@ -20,7 +20,9 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-var lg *zap.Logger
+var (
+	lg *zap.Logger
+)
 
 func getLogwriterData(filename, maxSize, maxBackup, maxAge string) zapcore.WriteSyncer {
 	lumberJackLogger, _ := rotatelogs.New(
@@ -45,9 +47,17 @@ func InitLogger() (err error) {
 	// logerWriter := getLogwriter(c.Filename, c.MaxSize, c.MaxBackups, c.MaxAge)
 	// logerWriter := getLogwriterData(c.Filename, c.MaxSize, c.MaxBackups, c.MaxAge)
 	logerWriter := getLogwriterData(config.Env["LOG_FILE_PATH"]+config.Env["LOG_FILE_NAME"], config.Env["LOG_FILE_MAX_SIZE"], config.Env["LOG_FILE_MAX_BACKUPS"], config.Env["LOG_FILE_MAX_AGE"])
+	errLogerWriter := getLogwriterData(config.Env["LOG_FILE_PATH"]+config.Env["LOG_FILE_ERR_NAME"], config.Env["LOG_FILE_MAX_SIZE"], config.Env["LOG_FILE_MAX_BACKUPS"], config.Env["LOG_FILE_MAX_AGE"])
 	encoder := getEncoder()
-	var l = new(zapcore.Level)
+	// var l = new(zapcore.Level)
 	var core zapcore.Core
+	highPriority := zap.LevelEnablerFunc(func(lev zapcore.Level) bool {
+		return lev >= zap.ErrorLevel
+	})
+
+	lowPriority := zap.LevelEnablerFunc(func(lev zapcore.Level) bool {
+		return lev < zap.ErrorLevel && lev >= zap.DebugLevel
+	})
 	// if config.Env["GIN_MODE"] == "release" {
 	// 	c.Level = "info"
 	// }
@@ -56,14 +66,19 @@ func InitLogger() (err error) {
 	if config.Env["GIN_MODE"] == "debug" {
 		consoleEncoder := zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig())
 		core = zapcore.NewTee(
-			zapcore.NewCore(encoder, logerWriter, l),
+			zapcore.NewCore(encoder, logerWriter, lowPriority),
+			zapcore.NewCore(encoder, errLogerWriter, highPriority),
 			zapcore.NewCore(consoleEncoder, zapcore.Lock(os.Stdout), zapcore.DebugLevel),
 		)
 	} else {
-		core = zapcore.NewCore(encoder, logerWriter, l)
+		core = zapcore.NewTee(
+			zapcore.NewCore(encoder, logerWriter, lowPriority),
+			zapcore.NewCore(encoder, errLogerWriter, highPriority),
+		)
 	}
 
 	lg = zap.New(core, zap.AddCaller())
+	// errlog = zap.New(core, zap.AddCaller())
 	// zapcore.AddSync()
 	zap.ReplaceGlobals(lg)
 	return
